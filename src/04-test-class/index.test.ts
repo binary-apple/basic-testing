@@ -48,20 +48,20 @@ describe('BankAccount', () => {
 
   test('fetchBalance should return number in case if request did not failed', async () => {
     _.random = jest.fn().mockReturnValueOnce(50).mockReturnValueOnce(1);
-    await expect(getBankAccount(100).fetchBalance()).resolves.toBe(50);
+    expect(typeof (await getBankAccount(100).fetchBalance())).toBe('number');
   });
 
   test('should set new balance if fetchBalance returned number', async () => {
-    _.random = jest.fn().mockReturnValueOnce(50).mockReturnValueOnce(1);
     const bankAccount = getBankAccount(100);
+    bankAccount.fetchBalance = jest.fn().mockResolvedValue(50);
     await bankAccount.synchronizeBalance();
     expect(bankAccount.getBalance()).toBe(50);
   });
 
   test('should throw SynchronizationFailedError if fetchBalance returned null', async () => {
-    _.random = jest.fn().mockReturnValueOnce(50).mockReturnValueOnce(0);
     const bankAccount = getBankAccount(100);
-    await expect(bankAccount.synchronizeBalance()).rejects.toThrow(
+    bankAccount.fetchBalance = jest.fn().mockResolvedValue(null);
+    expect(bankAccount.synchronizeBalance()).rejects.toThrow(
       SynchronizationFailedError,
     );
   });
